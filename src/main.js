@@ -47,6 +47,7 @@ const onForm = async event => {
     console.log(response);
 
     if (response.data.total === 0) {
+      loadBtn.classList.add('is-hidden');
       iziToast.error({
         message:
           'Sorry, there are no images matching your search query. Please try again!',
@@ -76,8 +77,6 @@ const onForm = async event => {
 
 const onLoadBtnClick = async () => {
   try {
-    loader.classList.remove('is-hidden');
-
     currentPage++;
     const response = await fetchPhotos(userInputValue, currentPage);
     const galleryCardList = response.data.hits
