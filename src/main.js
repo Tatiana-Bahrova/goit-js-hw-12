@@ -12,6 +12,7 @@ const observerEl = document.querySelector('.js-observer');
 
 let currentPage = 1;
 let userInputValue = '';
+let photoHight = 0;
 
 let lightbox = new SimpleLightbox('.gallery a', {
   captions: true,
@@ -27,12 +28,10 @@ const observerOptions = {
 
 const observerCallBack = entries => {
   if (entries[0].isIntersecting) {
-    console.log('hello');
   }
 };
 
 const observer = new IntersectionObserver(observerCallBack, observerOptions);
-console.log(observer);
 
 const onForm = async event => {
   try {
@@ -59,6 +58,9 @@ const onForm = async event => {
 
     gallery.innerHTML = galleryCardList;
 
+    const galleryPhoto = gallery.querySelector('li');
+    photoHight = galleryPhoto.getBoundingClientRect().height;
+
     observer.observe(observerEl);
 
     loadBtn.classList.remove('is-hidden');
@@ -74,6 +76,8 @@ const onForm = async event => {
 
 const onLoadBtnClick = async () => {
   try {
+    loader.classList.remove('is-hidden');
+
     currentPage++;
     const response = await fetchPhotos(userInputValue, currentPage);
     const galleryCardList = response.data.hits
@@ -82,13 +86,20 @@ const onLoadBtnClick = async () => {
 
     gallery.insertAdjacentHTML('beforeend', galleryCardList);
 
+    scrollBy({
+      top: photoHight * 2,
+      behavior: 'smooth',
+    });
+
     loadBtn.classList.remove('is-hidden');
 
     lightbox.refresh();
 
-    if (currentPage === response.data.totalHits) {
+    const totalPages = Math.ceil(response.data.totalHits / 15);
+    if (currentPage >= totalPages) {
       loadBtn.classList.add('is-hidden');
       iziToast.info({
+        position: 'topRight',
         message: "We're sorry, but you've reached the end of search results.",
       });
     }
